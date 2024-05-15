@@ -7,14 +7,33 @@
 
 import SwiftUI
 
+
+enum ConverTempError: Error {
+    case TypeNotDefined
+}
 struct ContentView: View {
     let tempScales = ["f", "c", "k"]
     
     @State private var selectedFrom = "c"
     @State private var selectedTo = "c"
-    @State private var amt = 0.0
+    @State private var value = 0.0
     
     @FocusState private var  fromUnitFocus: Bool
+    
+    private var kelvinTemp: Double {
+        get throws {
+            if selectedFrom == "c" {
+                return value + 273.15
+            }
+            if selectedFrom == "f" {
+                return (value - 32.0) * (5.0 / 9.0) + 273.15
+            }
+            if selectedFrom == "k" {
+                return value
+            }
+            throw ConverTempError.TypeNotDefined
+        }
+    }
     
     var body: some View {
         NavigationStack{
@@ -26,8 +45,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                Section("Amount") {
-                    TextField("Enter amount", value: $amt, format: .number).keyboardType(.decimalPad)
+                Section("Value in \(selectedFrom)") {
+                    TextField("Enter amount", value: $value, format: .number).keyboardType(.decimalPad)
                         .focused($fromUnitFocus)
                 }
                 Section ("To") {
