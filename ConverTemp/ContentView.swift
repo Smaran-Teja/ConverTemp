@@ -16,20 +16,36 @@ struct ContentView: View {
     
     @State private var selectedFrom = "c"
     @State private var selectedTo = "c"
-    @State private var value = 0.0
+    @State private var fromValue = 0.0
     
-    @FocusState private var  fromUnitFocus: Bool
+    @FocusState private var  keyboardFocus: Bool
     
     private var kelvinTemp: Double {
         get throws {
             if selectedFrom == "c" {
-                return value + 273.15
+                return fromValue + 273.15
             }
             if selectedFrom == "f" {
-                return (value - 32.0) * (5.0 / 9.0) + 273.15
+                return (fromValue - 32.0) * (5.0 / 9.0) + 273.15
             }
             if selectedFrom == "k" {
-                return value
+                return fromValue
+            }
+            throw ConverTempError.TypeNotDefined
+        }
+    }
+    
+    private var toValue: Double {
+        get throws {
+            let kTemp = (try? kelvinTemp) ?? 0.0
+            if selectedTo == "c" {
+                return kTemp - 273.15
+            }
+            if selectedTo == "f" {
+                return (kTemp - 273.15) * (9.0 / 5.0) + 32
+            }
+            if selectedTo == "k" {
+                return kTemp
             }
             throw ConverTempError.TypeNotDefined
         }
@@ -46,8 +62,8 @@ struct ContentView: View {
                     }
                 }
                 Section("Value in \(selectedFrom)") {
-                    TextField("Enter amount", value: $value, format: .number).keyboardType(.decimalPad)
-                        .focused($fromUnitFocus)
+                    TextField("Enter amount", value: $fromValue, format: .number).keyboardType(.decimalPad)
+                        .focused($keyboardFocus)
                 }
                 Section ("To") {
                     Picker("Select unit", selection: $selectedTo) {
@@ -56,7 +72,19 @@ struct ContentView: View {
                         }
                     }
                 }
-            }
+                
+                Section("Temp in \(selectedTo)") {
+                    let value = (try? toValue) ?? 0.0
+                    Text("\(value, format: .number)")
+                }
+            }.navigationTitle("ConverTemp")
+                .toolbar {
+                    if keyboardFocus {
+                        Button("Done") {
+                            keyboardFocus.toggle()
+                        }
+                    }
+                }
         }
     }
 }
