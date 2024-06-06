@@ -15,7 +15,7 @@ struct ContentView: View {
     let tempScales = ["f", "c", "k"]
     
     @State private var selectedFrom = "c"
-    @State private var selectedTo = "c"
+    @State private var selectedTo = "k"
     @State private var fromValue = 0.0
     
     @FocusState private var  keyboardFocus: Bool
